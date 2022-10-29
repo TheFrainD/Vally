@@ -9,7 +9,7 @@
 namespace Vally
 {
 	Window::Window(U32 width, U32 height, const std::string& title) :
-		mWindow(nullptr), mData({width, height, title})
+		m_pWindow(nullptr), m_data({width, height, title})
 	{
 		VALLY_ASSERT(width > 0, "Window width must be greater than zero");
 		VALLY_ASSERT(height > 0, "Window width must be greater than zero");
@@ -18,18 +18,18 @@ namespace Vally
 
 	Window::~Window()
 	{
-		glfwDestroyWindow(mWindow);
+		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 	}
 
 	void Window::SwapBuffers() const
 	{
-		glfwSwapBuffers(mWindow);
+		glfwSwapBuffers(m_pWindow);
 	}
 
 	bool Window::ShouldClose() const
 	{
-		return glfwWindowShouldClose(mWindow);
+		return glfwWindowShouldClose(m_pWindow);
 	}
 
 	void Window::PollEvents()
@@ -51,16 +51,16 @@ namespace Vally
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 
-		mWindow = glfwCreateWindow(
-			static_cast<I32>(mData.Width),
-			static_cast<I32>(mData.Height),
-			mData.Title.c_str(), 
+		m_pWindow = glfwCreateWindow(
+			static_cast<I32>(m_data.m_width),
+			static_cast<I32>(m_data.m_height),
+			m_data.m_title.c_str(), 
 			nullptr, 
 			nullptr);
 
-		glfwSetWindowUserPointer(mWindow, &mData);
+		glfwSetWindowUserPointer(m_pWindow, &m_data);
 
-		glfwMakeContextCurrent(mWindow);
+		glfwMakeContextCurrent(m_pWindow);
 		glfwSwapInterval(1);
 
 		success = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
@@ -68,7 +68,7 @@ namespace Vally
 
 		glViewport(
 			0, 0,
-			static_cast<GLsizei>(mData.Width),
-			static_cast<GLsizei>(mData.Height));
+			static_cast<GLsizei>(m_data.m_width),
+			static_cast<GLsizei>(m_data.m_height));
 	}
 }

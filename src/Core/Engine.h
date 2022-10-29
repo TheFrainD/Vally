@@ -11,8 +11,8 @@ namespace Vally
 
 		void Run();
 	private:
-		Window mWindow{800, 600, "Vally"};
+		Window m_window;
 
-		bool mRunning;
+		bool m_running;
 	};
 }

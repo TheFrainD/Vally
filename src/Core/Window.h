@@ -29,14 +29,14 @@ namespace Vally
 
 		struct WindowData
 		{
-			U32 Width{};
-			U32 Height{};
-			std::string Title;
+			U32 m_width{};
+			U32 m_height{};
+			std::string m_title;
 
 			WindowData() = default;
 		};
 
-		GLFWwindow* mWindow;
-		WindowData mData;
+		GLFWwindow* m_pWindow;
+		WindowData m_data;
 	};
 }

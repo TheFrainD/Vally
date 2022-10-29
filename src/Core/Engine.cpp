@@ -9,26 +9,26 @@ constexpr auto WINDOW_TITLE = "Vally";
 namespace Vally
 {
 	Engine::Engine() :
-	mWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE),
-	mRunning(false)
+	m_window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE),
+	m_running(false)
 	{
 	}
 
 	void Engine::Run()
 	{
-		mRunning = true;
+		m_running = true;
 
 		Logger::Initialize();
 
-		while (mRunning)
+		while (m_running)
 		{
 			Window::PollEvents();
 
-			mWindow.SwapBuffers();
+			m_window.SwapBuffers();
 
-			if (mWindow.ShouldClose())
+			if (m_window.ShouldClose())
 			{
-				mRunning = false;
+				m_running = false;
 			}
 		}
 	}
