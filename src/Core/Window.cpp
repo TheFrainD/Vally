@@ -5,7 +5,10 @@
 
 #include "Core/Log.h"
 #include "Core/Assert.h"
+#include "Core/Input.h"
+#include "Event/WindowEvent.h"
 #include "Event/EventManager.h"
+#include "Event/InputEvent.h"
 
 namespace Vally
 {
@@ -26,10 +29,6 @@ namespace Vally
 	void Window::Update() const
 	{
 		glfwPollEvents();
-		if (glfwWindowShouldClose(m_pWindow))
-		{
-			EventManager::Post<WindowCloseEvent>();
-		}
 	}
 
 	void Window::SwapBuffers() const
@@ -69,6 +68,57 @@ namespace Vally
 			glViewport(0, 0, width, height);
 
 			EventManager::Post<WindowResizeEvent>(static_cast<U32>(width), static_cast<U32>(height));
+		});
+
+		glfwSetWindowCloseCallback(m_pWindow, [](GLFWwindow*)
+		{
+			EventManager::Post<WindowCloseEvent>();
+		});
+
+		glfwSetKeyCallback(m_pWindow, [](GLFWwindow*, I32 key, I32, I32 action, I32)
+		{
+			Input::s_keyboard.m_keys[key] = action;
+
+			if (action == GLFW_PRESS || action == GLFW_REPEAT)
+			{
+				EventManager::Post<KeyPressedEvent>(static_cast<Key>(key));
+			}
+			else
+			{
+				EventManager::Post<KeyReleasedEvent>(static_cast<Key>(key));
+			}
+		});
+
+		glfwSetMouseButtonCallback(m_pWindow, [](GLFWwindow*, I32 button, I32 action, I32)
+		{
+			Input::s_mouse.m_buttons[button] = action;
+
+			if (action == GLFW_PRESS)
+			{
+				EventManager::Post<MouseButtonPressedEvent>(static_cast<MouseButton>(button));
+			}
+			else
+			{
+				EventManager::Post<MouseButtonReleasedEvent>(static_cast<MouseButton>(button));
+			}
+		});
+
+		glfwSetScrollCallback(m_pWindow, [](GLFWwindow*, F64 xOffset, F64 yOffset)
+		{
+			EventManager::Post<MouseScrolledEvent>(glm::vec2(
+				static_cast<F32>(xOffset),
+				static_cast<F32>(yOffset)));
+		});
+
+		glfwSetCursorPosCallback(m_pWindow, [](GLFWwindow*, F64 xPos, F64 yPos)
+		{
+			Input::s_mouse.m_previousPosition = Input::s_mouse.m_position;
+			Input::s_mouse.m_position = glm::vec2(
+				static_cast<F32>(xPos),
+				static_cast<F32>(yPos)
+			);
+
+			EventManager::Post<MouseMovedEvent>(Input::s_mouse.m_position, Input::s_mouse.m_previousPosition);
 		});
 
 		glfwMakeContextCurrent(m_pWindow);

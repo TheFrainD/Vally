@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Core/Log.h"
+#include "Core/Input.h"
 #include "Event/EventManager.h"
 
 constexpr auto WINDOW_WIDTH = 800;
@@ -22,6 +23,7 @@ namespace Vally
 		Logger::Initialize();
 
 		EventManager::Subscribe<WindowCloseEvent>(VALLY_EVENT_TCALLBACK(OnWindowClose, WindowCloseEvent));
+		EventManager::Subscribe<KeyPressedEvent>(VALLY_EVENT_TCALLBACK(OnKeyPressed, KeyPressedEvent));
 
 		while (m_running)
 		{
@@ -34,5 +36,13 @@ namespace Vally
 	void Engine::OnWindowClose(WindowCloseEvent& event)
 	{
 		m_running = false;
+	}
+
+	void Engine::OnKeyPressed(KeyPressedEvent& event)
+	{
+		if (event.GetKey() == Key::Escape)
+		{
+			m_running = false;
+		}
 	}
 }

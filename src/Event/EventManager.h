@@ -29,7 +29,7 @@ namespace Vally
 		static void Post(Args&& ... args)
 		{
 			static_assert(std::is_base_of_v<Event, T> == true, "Object must derive from Event");
-			T event{ std::forward<Args>(args)... };
+			T event(std::forward<Args>(args)...);
 			Event* baseEvent = &event;
 
 			if (s_callbacks.find(baseEvent->GetType()) != s_callbacks.end())

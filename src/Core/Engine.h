@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "Event/Event.h"
+#include "Event/WindowEvent.h"
+#include "Event/InputEvent.h"
 
 namespace Vally
 {
@@ -13,6 +14,8 @@ namespace Vally
 		void Run();
 
 		void OnWindowClose(WindowCloseEvent& event);
+
+		void OnKeyPressed(KeyPressedEvent& event);
 	private:
 		Window m_window;
 

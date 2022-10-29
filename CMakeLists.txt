@@ -33,3 +33,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 # spdlog
 add_subdirectory(${DEPS_DIR}/spdlog)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+
+# glm
+include_directories(${DEPS_DIR}/glm)

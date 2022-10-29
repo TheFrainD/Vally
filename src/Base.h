@@ -36,4 +36,5 @@ namespace Vally
 	typedef int64_t		I64;
 
 	typedef float		F32;
+	typedef double		F64;
 }
