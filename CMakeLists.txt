@@ -10,7 +10,8 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 file(GLOB SRC 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Event/*.cpp)
 
 add_executable(Vally
 	${SRC}

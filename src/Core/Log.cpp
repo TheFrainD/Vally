@@ -6,19 +6,19 @@
 
 namespace Vally
 {
-	std::shared_ptr<spdlog::logger> Logger::sLogger;
+	std::shared_ptr<spdlog::logger> Logger::s_logger;
 
 	void Logger::Initialize()
 	{
-		VALLY_ASSERT(sLogger == nullptr, "Can not initialize logger more than once");
+		VALLY_ASSERT(s_logger == nullptr, "Can not initialize logger more than once");
 
 		auto sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
 		sink->set_level(spdlog::level::trace);
-		sLogger = std::make_shared<spdlog::logger>("Vally logger", sink);
+		s_logger = std::make_shared<spdlog::logger>("Vally logger", sink);
 	}
 
 	std::shared_ptr<spdlog::logger>& Logger::GetLogger()
 	{
-		return sLogger;
+		return s_logger;
 	}
 }

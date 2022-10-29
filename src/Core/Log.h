@@ -16,7 +16,7 @@ namespace Vally
 
 		static std::shared_ptr<spdlog::logger>& GetLogger();
 	private:
-		static std::shared_ptr<spdlog::logger> sLogger;
+		static std::shared_ptr<spdlog::logger> s_logger;
 	};
 
 }

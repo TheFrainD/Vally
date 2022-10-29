@@ -23,6 +23,7 @@ cmake --build ./build --config Release
 
 ## Implemented features
 - Multiplatform windowing
+- Event system (immediate event handling)
 
 ## Planned features
 - Global illumination

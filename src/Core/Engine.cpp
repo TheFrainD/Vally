@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Core/Log.h"
+#include "Event/EventManager.h"
 
 constexpr auto WINDOW_WIDTH = 800;
 constexpr auto WINDOW_HEIGHT = 600;
@@ -20,16 +21,18 @@ namespace Vally
 
 		Logger::Initialize();
 
+		EventManager::Subscribe<WindowCloseEvent>(VALLY_EVENT_TCALLBACK(OnWindowClose, WindowCloseEvent));
+
 		while (m_running)
 		{
-			Window::PollEvents();
+			m_window.Update();
 
 			m_window.SwapBuffers();
-
-			if (m_window.ShouldClose())
-			{
-				m_running = false;
-			}
 		}
+	}
+
+	void Engine::OnWindowClose(WindowCloseEvent& event)
+	{
+		m_running = false;
 	}
 }

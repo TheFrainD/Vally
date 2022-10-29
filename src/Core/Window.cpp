@@ -5,6 +5,7 @@
 
 #include "Core/Log.h"
 #include "Core/Assert.h"
+#include "Event/EventManager.h"
 
 namespace Vally
 {
@@ -22,19 +23,18 @@ namespace Vally
 		glfwTerminate();
 	}
 
+	void Window::Update() const
+	{
+		glfwPollEvents();
+		if (glfwWindowShouldClose(m_pWindow))
+		{
+			EventManager::Post<WindowCloseEvent>();
+		}
+	}
+
 	void Window::SwapBuffers() const
 	{
 		glfwSwapBuffers(m_pWindow);
-	}
-
-	bool Window::ShouldClose() const
-	{
-		return glfwWindowShouldClose(m_pWindow);
-	}
-
-	void Window::PollEvents()
-	{
-		glfwPollEvents();
 	}
 
 	void Window::Initialize()
@@ -59,6 +59,17 @@ namespace Vally
 			nullptr);
 
 		glfwSetWindowUserPointer(m_pWindow, &m_data);
+
+		glfwSetFramebufferSizeCallback(m_pWindow, [](GLFWwindow* window, I32 width, I32 height)
+		{
+			auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+			data->m_width = width;
+			data->m_height = height;
+
+			glViewport(0, 0, width, height);
+
+			EventManager::Post<WindowResizeEvent>(static_cast<U32>(width), static_cast<U32>(height));
+		});
 
 		glfwMakeContextCurrent(m_pWindow);
 		glfwSwapInterval(1);
