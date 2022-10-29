@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Base.h"
+
 struct GLFWwindow;
 
 namespace Vally
@@ -9,7 +11,7 @@ namespace Vally
 	class Window
 	{
 	public:
-		Window(int width, int height, const std::string& title);
+		Window(U32 width, U32 height, const std::string& title);
 		~Window();
 
 		Window(const Window&) = delete;
@@ -27,8 +29,8 @@ namespace Vally
 
 		struct WindowData
 		{
-			int Width{};
-			int Height{};
+			U32 Width{};
+			U32 Height{};
 			std::string Title;
 
 			WindowData() = default;

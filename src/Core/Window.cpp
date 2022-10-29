@@ -3,11 +3,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Core/Log.h"
+#include "Core/Assert.h"
+
 namespace Vally
 {
-	Window::Window(int width, int height, const std::string& title) :
+	Window::Window(U32 width, U32 height, const std::string& title) :
 		mWindow(nullptr), mData({width, height, title})
 	{
+		VALLY_ASSERT(width > 0, "Window width must be greater than zero");
+		VALLY_ASSERT(height > 0, "Window width must be greater than zero");
 		Initialize();
 	}
 
@@ -34,15 +39,21 @@ namespace Vally
 
 	void Window::Initialize()
 	{
-		glfwInit();
+		I32 success = glfwInit();
+		VALLY_ASSERT(success, "Could not initialize GLFW!");
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+#ifdef VALLY_DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 
 		mWindow = glfwCreateWindow(
-			mData.Width, 
-			mData.Height, 
+			static_cast<I32>(mData.Width),
+			static_cast<I32>(mData.Height),
 			mData.Title.c_str(), 
 			nullptr, 
 			nullptr);
@@ -52,8 +63,12 @@ namespace Vally
 		glfwMakeContextCurrent(mWindow);
 		glfwSwapInterval(1);
 
-		gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+		success = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+		VALLY_ASSERT(success, "Could not initialize GLAD!");
 
-		glViewport(0, 0, mData.Width, mData.Height);
+		glViewport(
+			0, 0,
+			static_cast<GLsizei>(mData.Width),
+			static_cast<GLsizei>(mData.Height));
 	}
 }

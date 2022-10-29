@@ -5,9 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(DEPS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
+include_directories(
+	"${DEPS_DIR}/spdlog/include"
+	${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 file(GLOB SRC 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp
-	)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp)
 
 add_executable(Vally
 	${SRC}
@@ -25,3 +28,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 # glad
 add_subdirectory(${DEPS_DIR}/glad)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+
+# spdlog
+add_subdirectory(${DEPS_DIR}/spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
