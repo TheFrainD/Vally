@@ -36,6 +36,7 @@ namespace Vally
 	void Engine::OnWindowClose(WindowCloseEvent& event)
 	{
 		m_running = false;
+		event.SetHandled();
 	}
 
 	void Engine::OnKeyPressed(KeyPressedEvent& event)
@@ -43,6 +44,7 @@ namespace Vally
 		if (event.GetKey() == Key::Escape)
 		{
 			m_running = false;
+			event.SetHandled();
 		}
 	}
 }

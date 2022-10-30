@@ -7,7 +7,7 @@
 
 #include "Event.h"
 
-#define VALLY_EVENT_CALLBACK(FUNC) ([this](Event& event){this->FUNC(dynamic_cast<Event&>(event));})
+#define VALLY_EVENT_CALLBACK(FUNC) ([this](Event& event){this->FUNC(event);})
 #define VALLY_EVENT_TCALLBACK(FUNC, TYPE) ([this](Event& event){this->FUNC(dynamic_cast<TYPE&>(event));})
 
 namespace Vally
@@ -36,10 +36,9 @@ namespace Vally
 			{
 				for (auto&& callback : s_callbacks.at(baseEvent->GetType()))
 				{
-					if (!baseEvent->IsHandled())
-					{
-						callback(event);
-					}
+					callback(event);
+					if (baseEvent->IsHandled())
+						break;
 				}
 			}
 
