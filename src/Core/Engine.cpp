@@ -12,6 +12,7 @@ namespace Vally
 {
 	Engine::Engine() :
 	m_window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE),
+	m_gui(m_window.GetHandle(), WINDOW_WIDTH, WINDOW_HEIGHT),
 	m_running(false)
 	{
 	}
@@ -20,14 +21,14 @@ namespace Vally
 	{
 		m_running = true;
 
-		Logger::Initialize();
-
 		EventManager::Subscribe<WindowCloseEvent>(VALLY_EVENT_TCALLBACK(OnWindowClose, WindowCloseEvent));
 		EventManager::Subscribe<KeyPressedEvent>(VALLY_EVENT_TCALLBACK(OnKeyPressed, KeyPressedEvent));
 
 		while (m_running)
 		{
 			m_window.Update();
+
+			m_gui.Render();
 
 			m_window.SwapBuffers();
 		}

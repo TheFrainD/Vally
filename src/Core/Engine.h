@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Window.h"
+#include "GUI/GUI.h"
 #include "Event/WindowEvent.h"
 #include "Event/InputEvent.h"
 
@@ -18,6 +19,7 @@ namespace Vally
 		void OnKeyPressed(KeyPressedEvent& event);
 	private:
 		Window m_window;
+		GUI m_gui;
 
 		bool m_running;
 	};

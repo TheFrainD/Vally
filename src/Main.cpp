@@ -3,9 +3,11 @@
 #include <cstdlib>
 
 #include "Core/Engine.h"
+#include "Core/Log.h"
 
-int main()
+int main(int, char**)
 {
+	Vally::Logger::Initialize();
 	Vally::Engine engine;
 
 	try

@@ -21,6 +21,10 @@ namespace Vally
 
 		void Update() const;
 		void SwapBuffers() const;
+
+		[[nodiscard]] GLFWwindow* GetHandle() const;
+
+		static void SetSwapInterval(bool toggle);
 	private:
 		void Initialize();
 

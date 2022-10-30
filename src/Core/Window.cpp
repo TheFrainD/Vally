@@ -24,6 +24,8 @@ namespace Vally
 	{
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
+
+		VALLY_INFO("Window destroyed!");
 	}
 
 	void Window::Update() const
@@ -36,6 +38,23 @@ namespace Vally
 		glfwSwapBuffers(m_pWindow);
 	}
 
+	GLFWwindow* Window::GetHandle() const
+	{
+		return m_pWindow;
+	}
+
+	void Window::SetSwapInterval(bool toggle)
+	{
+		if (toggle)
+		{
+			glfwSwapInterval(1);
+		}
+		else
+		{
+			glfwSwapInterval(0);
+		}
+	}
+
 	void Window::Initialize()
 	{
 		I32 success = glfwInit();
@@ -44,7 +63,6 @@ namespace Vally
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 #ifdef VALLY_DEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -122,7 +140,7 @@ namespace Vally
 		});
 
 		glfwMakeContextCurrent(m_pWindow);
-		glfwSwapInterval(1);
+		SetSwapInterval(true);
 
 		success = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		VALLY_ASSERT(success, "Could not initialize GLAD!");
@@ -131,5 +149,7 @@ namespace Vally
 			0, 0,
 			static_cast<GLsizei>(m_data.m_width),
 			static_cast<GLsizei>(m_data.m_height));
+
+		VALLY_INFO("Window initialized!");
 	}
 }
