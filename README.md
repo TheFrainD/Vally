@@ -1,6 +1,8 @@
 # Vally
 ![In development](https://img.shields.io/badge/-In%20development-orange) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/TheFrainD/Vally/blob/master/LICENSE)
 
+![Vally](resources/logo300x300.png)
+
 Vally is basic 3D rendering engine made with C++ and OpenGL 4.6.
 
 **The project is at its very early stage**
@@ -18,8 +20,10 @@ cmake --build ./build --config Release
 
 ## Dependencies
 - [glfw](https://github.com/glfw/glfw) - window library
-- [glad](https://glad.dav1d.de/) - OpenGL loading library
-- [spdlog](https://github.com/gabime/spdlog.git) - logging library
+- [glad](https://glad.dav1d.de/) - OpenGL loader
+- [spdlog](https://github.com/gabime/spdlog) - logging
+- [imgui](https://github.com/ocornut/imgui) - GUI
+- [glm](https://github.com/g-truc/glm) - Maths
 
 ## Implemented features
 - Multiplatform windowing
