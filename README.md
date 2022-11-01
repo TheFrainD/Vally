@@ -24,6 +24,7 @@ cmake --build ./build --config Release
 - [spdlog](https://github.com/gabime/spdlog) - logging
 - [imgui](https://github.com/ocornut/imgui) - GUI
 - [glm](https://github.com/g-truc/glm) - Maths
+- [stb-image](https://github.com/nothings/stb/blob/master/stb_image.h) - Image loading
 
 ## Implemented features
 - Multiplatform windowing

@@ -3,7 +3,6 @@
 #include "Core/Log.h"
 #include "Core/Input.h"
 #include "Event/EventManager.h"
-#include "Graphics/Shader.h"
 
 constexpr auto WINDOW_WIDTH = 800;
 constexpr auto WINDOW_HEIGHT = 600;
