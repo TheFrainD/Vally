@@ -18,10 +18,10 @@ namespace Vally
 		GUI(GUI&&) = delete;
 		GUI& operator=(GUI&&) = delete;
 
-		void Render();
+		void Render() noexcept;
 	private:
-		void Begin();
-		void End();
+		void Begin() noexcept;
+		void End() noexcept;
 
 		F32 m_frameWidth{};
 		F32 m_frameHeight{};

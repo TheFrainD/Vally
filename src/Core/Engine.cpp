@@ -3,6 +3,7 @@
 #include "Core/Log.h"
 #include "Core/Input.h"
 #include "Event/EventManager.h"
+#include "Graphics/Shader.h"
 
 constexpr auto WINDOW_WIDTH = 800;
 constexpr auto WINDOW_HEIGHT = 600;
@@ -20,6 +21,9 @@ namespace Vally
 	void Engine::Run()
 	{
 		m_running = true;
+
+		EventManager::Subscribe<WindowCloseEvent>(VALLY_EVENT_TCALLBACK(OnWindowClose, WindowCloseEvent));
+		EventManager::Subscribe<KeyPressedEvent>(VALLY_EVENT_TCALLBACK(OnKeyPressed, KeyPressedEvent));
 
 		while (m_running)
 		{
