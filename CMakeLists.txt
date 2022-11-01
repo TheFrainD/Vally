@@ -13,7 +13,8 @@ find_package(OpenGL REQUIRED)
 file(GLOB SRC 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Event/*.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/GUI/*.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GUI/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Graphics/*.cpp)
 
 add_executable(Vally
 	${SRC}
@@ -22,3 +23,10 @@ add_executable(Vally
 add_subdirectory(deps)
 
 target_link_libraries(${PROJECT_NAME} imgui glfw glad glm spdlog::spdlog)
+
+add_custom_command(
+	TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+			${CMAKE_CURRENT_SOURCE_DIR}/assets
+			${CMAKE_CURRENT_BINARY_DIR}/assets
+)
