@@ -19,12 +19,11 @@ namespace Vally
 		Window(Window&&) = delete;
 		Window& operator=(Window&&) = delete;
 
-		void Update() const;
-		void SwapBuffers() const;
+		void Update() const noexcept;
 
-		[[nodiscard]] GLFWwindow* GetHandle() const;
+		[[nodiscard]] GLFWwindow* GetHandle() const noexcept;
 
-		static void SetSwapInterval(bool toggle);
+		static void SetSwapInterval(bool toggle) noexcept;
 	private:
 		void Initialize();
 
@@ -33,11 +32,9 @@ namespace Vally
 			U32 m_width{};
 			U32 m_height{};
 			std::string m_title;
-
-			WindowData() = default;
 		};
 
-		GLFWwindow* m_pWindow;
+		GLFWwindow* m_pWindow = nullptr;
 		WindowData m_data;
 	};
 }

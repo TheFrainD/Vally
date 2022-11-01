@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <memory>
 
 #include "Core/Engine.h"
 #include "Core/Log.h"
@@ -8,15 +9,17 @@
 int main(int, char**)
 {
 	Vally::Logger::Initialize();
-	Vally::Engine engine;
+	std::unique_ptr<Vally::Engine> pEngine;
 
 	try
 	{
-		engine.Run();
+		pEngine = std::make_unique<Vally::Engine>();
+		pEngine->Run();
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << e.what() << std::endl;
+		VALLY_CRITICAL("Critical error: {}", e.what());
+		VALLY_CRITICAL("Stop executing!");
 		return EXIT_FAILURE;
 	}
 

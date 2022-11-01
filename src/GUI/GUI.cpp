@@ -1,5 +1,7 @@
 #include "GUI.h"
 
+#include <stdexcept>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -20,11 +22,17 @@
 
 namespace Vally
 {
-	GUI::GUI(GLFWwindow* pWindow, F32 frameWidth, F32 frameHeight) :
-		m_frameWidth(frameWidth), m_frameHeight(frameHeight)
+	GUI::GUI(GLFWwindow* pWindow, F32 frameWidth, F32 frameHeight)
+		: m_frameWidth(frameWidth)
+		, m_frameHeight(frameHeight)
 	{
 		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+
+		if (ImGui::CreateContext() == nullptr)
+		{
+			throw std::runtime_error{ "Could not create ImGui Context!" };
+		}
+
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -42,8 +50,18 @@ namespace Vally
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
-		ImGui_ImplOpenGL3_Init("#version 410");
+		if (!ImGui_ImplGlfw_InitForOpenGL(pWindow, true))
+		{
+			ImGui::DestroyContext();
+			throw std::runtime_error{ "Could not initialize GLFW implementation for ImGui!" };
+		}
+
+		if (!ImGui_ImplOpenGL3_Init("#version 410"))
+		{
+			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
+			throw std::runtime_error{ "Could not initialize OpenGL implementation for ImGui!" };
+		}
 
 		EventManager::Subscribe<WindowResizeEvent>([this](Event& event)
 		{
@@ -64,7 +82,7 @@ namespace Vally
 		VALLY_INFO("GUI destroyed!");
 	}
 
-	void GUI::Render()
+	void GUI::Render() noexcept
 	{
 		
 		Begin();
@@ -169,7 +187,7 @@ namespace Vally
 		End();
 	}
 
-	void GUI::Begin()
+	void GUI::Begin() noexcept
 	{
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -179,7 +197,7 @@ namespace Vally
 		ImGui::NewFrame();
 	}
 
-	void GUI::End()
+	void GUI::End() noexcept
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(m_frameWidth, m_frameHeight);

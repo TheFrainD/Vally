@@ -18,15 +18,17 @@ namespace Vally
 	class EventManager
 	{
 	public:
+		EventManager() = delete;
+
 		template <typename T>
-		static void Subscribe(EventCallback callback)
+		static void Subscribe(EventCallback callback) noexcept
 		{
 			static_assert(std::is_base_of_v<Event, T> == true, "Object must derive from Event");
 			s_callbacks[T::StaticType()].push_back(callback);
 		}
 
 		template <typename T, typename ... Args>
-		static void Post(Args&& ... args)
+		static void Post(Args&& ... args) noexcept
 		{
 			static_assert(std::is_base_of_v<Event, T> == true, "Object must derive from Event");
 			T event(std::forward<Args>(args)...);

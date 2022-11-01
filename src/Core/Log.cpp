@@ -8,7 +8,7 @@ namespace Vally
 {
 	std::shared_ptr<spdlog::logger> Logger::s_logger;
 
-	void Logger::Initialize()
+	void Logger::Initialize() noexcept
 	{
 		VALLY_ASSERT(s_logger == nullptr, "Can not initialize logger more than once");
 
@@ -17,7 +17,7 @@ namespace Vally
 		s_logger = std::make_shared<spdlog::logger>("Vally logger", sink);
 	}
 
-	std::shared_ptr<spdlog::logger>& Logger::GetLogger()
+	std::shared_ptr<spdlog::logger>& Logger::GetLogger() noexcept
 	{
 		return s_logger;
 	}

@@ -12,9 +12,11 @@ namespace Vally
 	class Logger
 	{
 	public:
-		static void Initialize();
+		Logger() = delete;
 
-		static std::shared_ptr<spdlog::logger>& GetLogger();
+		static void Initialize() noexcept;
+
+		static std::shared_ptr<spdlog::logger>& GetLogger() noexcept;
 	private:
 		static std::shared_ptr<spdlog::logger> s_logger;
 	};

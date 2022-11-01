@@ -175,12 +175,14 @@ namespace Vally
 	class Input
 	{
 	public:
-		[[nodiscard]] static bool IsKeyPressed(Key key);
+		Input() = delete;
 
-		[[nodiscard]] static bool IsMouseButtonPressed(MouseButton mouseButton);
+		[[nodiscard]] static bool IsKeyPressed(Key key) noexcept;
 
-		[[nodiscard]] static glm::vec2 GetMousePosition();
-		[[nodiscard]] static glm::vec2 GetMousePreviousPosition();
+		[[nodiscard]] static bool IsMouseButtonPressed(MouseButton mouseButton) noexcept;
+
+		[[nodiscard]] static glm::vec2 GetMousePosition() noexcept;
+		[[nodiscard]] static glm::vec2 GetMousePreviousPosition() noexcept;
 	private:
 		static Keyboard s_keyboard;
 		static Mouse s_mouse;

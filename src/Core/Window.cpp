@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <stdexcept>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,13 +12,19 @@
 #include "Event/EventManager.h"
 #include "Event/InputEvent.h"
 
+void GlfwErrorCallback(int errorCode, const char* message)
+{
+	VALLY_ERROR("GLFW Error #{}: {}", errorCode, message);
+}
+
 namespace Vally
 {
-	Window::Window(U32 width, U32 height, const std::string& title) :
-		m_pWindow(nullptr), m_data({width, height, title})
+	Window::Window(U32 width, U32 height, const std::string& title)
+		: m_data({width, height, title})
 	{
 		VALLY_ASSERT(width > 0, "Window width must be greater than zero");
 		VALLY_ASSERT(height > 0, "Window width must be greater than zero");
+
 		Initialize();
 	}
 
@@ -28,22 +36,18 @@ namespace Vally
 		VALLY_INFO("Window destroyed!");
 	}
 
-	void Window::Update() const
+	void Window::Update() const noexcept
 	{
 		glfwPollEvents();
-	}
-
-	void Window::SwapBuffers() const
-	{
 		glfwSwapBuffers(m_pWindow);
 	}
 
-	GLFWwindow* Window::GetHandle() const
+	GLFWwindow* Window::GetHandle() const noexcept
 	{
 		return m_pWindow;
 	}
 
-	void Window::SetSwapInterval(bool toggle)
+	void Window::SetSwapInterval(bool toggle) noexcept
 	{
 		if (toggle)
 		{
@@ -57,8 +61,12 @@ namespace Vally
 
 	void Window::Initialize()
 	{
-		I32 success = glfwInit();
-		VALLY_ASSERT(success, "Could not initialize GLFW!");
+		glfwSetErrorCallback(GlfwErrorCallback);
+	
+		if (!glfwInit())
+		{
+			throw std::runtime_error{ "Could not initialize GFLW!" };
+		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -75,11 +83,17 @@ namespace Vally
 			nullptr, 
 			nullptr);
 
+		if (m_pWindow == nullptr)
+		{
+			glfwTerminate();
+			throw std::runtime_error{ "Could not create window!" };
+		}
+
 		glfwSetWindowUserPointer(m_pWindow, &m_data);
 
 		glfwSetFramebufferSizeCallback(m_pWindow, [](GLFWwindow* window, I32 width, I32 height)
 		{
-			auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+			const auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			data->m_width = width;
 			data->m_height = height;
 
@@ -142,8 +156,12 @@ namespace Vally
 		glfwMakeContextCurrent(m_pWindow);
 		SetSwapInterval(true);
 
-		success = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-		VALLY_ASSERT(success, "Could not initialize GLAD!");
+		if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+		{
+			glfwDestroyWindow(m_pWindow);
+			glfwTerminate();
+			throw std::runtime_error{ "Could not initialize GLAD!" };
+		}
 
 		glViewport(
 			0, 0,
