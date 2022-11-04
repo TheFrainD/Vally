@@ -21,8 +21,7 @@ namespace Vally
 
 		[[nodiscard]] static TextureContainer Create(
 			const std::string& name,
-			U32 width, U32 height,
-			const std::span<U32>& data) noexcept;
+			U32 width, U32 height) noexcept;
 
 		~Texture();
 

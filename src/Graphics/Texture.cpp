@@ -31,20 +31,12 @@ namespace Vally
 			VALLY_ERROR("Could not generate OpenGL texture \"{}\"({})!", name, filePath);
 			return {};
 		}
+		glBindTexture(GL_TEXTURE_2D, id);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// Anisotropic filtering
-		constexpr F32 MAX_ANISOTROPY = 16.0f;
-		F32 anisotropy = 0.0f;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &anisotropy);
-
-		anisotropy = (anisotropy > MAX_ANISOTROPY) ? MAX_ANISOTROPY : anisotropy;
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.0f);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
@@ -54,11 +46,8 @@ namespace Vally
 		return Texture(name, id, width, height);
 	}
 
-	TextureContainer Texture::Create(const std::string& name, U32 width, U32 height,
-		const std::span<U32>& data) noexcept
+	TextureContainer Texture::Create(const std::string& name, U32 width, U32 height) noexcept
 	{
-		VALLY_ASSERT(data.size() == width * height, "Data must cover all the texture");
-
 		U32 id = 0;
 		glGenTextures(1, &id);
 		if (id == 0)
@@ -66,22 +55,12 @@ namespace Vally
 			VALLY_ERROR("Could not generate OpenGL texture \"{}\"!", name);
 			return {};
 		}
+		glBindTexture(GL_TEXTURE_2D, id);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// Anisotropic filtering
-		constexpr F32 MAX_ANISOTROPY = 16.0f;
-		F32 anisotropy = 0.0f;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &anisotropy);
-
-		anisotropy = (anisotropy > MAX_ANISOTROPY) ? MAX_ANISOTROPY : anisotropy;
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.0f);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -144,6 +123,7 @@ namespace Vally
 		
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+		glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 

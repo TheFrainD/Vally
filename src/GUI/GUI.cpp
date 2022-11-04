@@ -19,12 +19,16 @@
 #include "Core/Window.h"
 #include "Event/EventManager.h"
 #include "Event/WindowEvent.h"
+#include "Graphics/Shader.h"
+#include "Graphics/Texture.h"
+#include "Graphics/VertexArray.h"
 
 namespace Vally
 {
 	GUI::GUI(GLFWwindow* pWindow, F32 frameWidth, F32 frameHeight)
 		: m_frameWidth(frameWidth)
 		, m_frameHeight(frameHeight)
+		, m_framebuffer(frameWidth, frameHeight)
 	{
 		IMGUI_CHECKVERSION();
 
@@ -84,7 +88,11 @@ namespace Vally
 
 	void GUI::Render() noexcept
 	{
-		
+		if (m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f)
+		{
+			m_framebuffer.Resize(m_viewportSize.x, m_viewportSize.y);
+		}
+
 		Begin();
 
 		static bool open = true;
@@ -167,6 +175,12 @@ namespace Vally
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
+
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+		ImGui::Image(reinterpret_cast<void*>(m_framebuffer.GetTextureID()), ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
 		ImGui::End();
 
 		ImGui::Begin("Scene");
@@ -185,6 +199,11 @@ namespace Vally
 		ImGui::End();
 
 		End();
+	}
+
+	const Framebuffer& GUI::GetFramebuffer() const noexcept
+	{
+		return m_framebuffer;
 	}
 
 	void GUI::Begin() noexcept
