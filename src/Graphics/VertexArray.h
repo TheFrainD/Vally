@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "Base.h"
 #include "Graphics/VertexBuffer.h"
 #include "Graphics/IndexBuffer.h"
@@ -21,13 +23,19 @@ namespace Vally
 
 		void Bind() const noexcept;
 
-		void SetVertexBuffer(const VertexBuffer& vertexBuffer) noexcept;
+		void SetVertexBuffer(VertexBuffer& vertexBuffer) noexcept;
 
-		void SetIndexBuffer(const IndexBuffer& indexBuffer) const noexcept;
+		void SetIndexBuffer(IndexBuffer& indexBuffer) noexcept;
+
+		[[nodiscard]] const std::optional<VertexBuffer>& GetVertexBuffer() const noexcept;
+
+		[[nodiscard]] const std::optional<IndexBuffer>& GetIndexBuffer() const noexcept;
 
 		static void Unbind() noexcept;
 	private:
 		U32 m_id = 0;
+		std::optional<VertexBuffer> m_vertexBuffer;
+		std::optional<IndexBuffer> m_indexBuffer;
 	};
 
 }

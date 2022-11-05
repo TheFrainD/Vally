@@ -42,8 +42,12 @@ namespace Vally
 	VertexArray::VertexArray(VertexArray&& other) noexcept
 	{
 		m_id = other.m_id;
+		m_vertexBuffer = std::move(other.m_vertexBuffer);
+		m_indexBuffer = std::move(other.m_indexBuffer);
 
 		other.m_id = 0;
+		other.m_vertexBuffer = {};
+		other.m_indexBuffer = {};
 	}
 
 	VertexArray& VertexArray::operator=(VertexArray&& other) noexcept
@@ -51,8 +55,12 @@ namespace Vally
 		if (this != &other)
 		{
 			m_id = other.m_id;
+			m_vertexBuffer = std::move(other.m_vertexBuffer);
+			m_indexBuffer = std::move(other.m_indexBuffer);
 
 			other.m_id = 0;
+			other.m_vertexBuffer = {};
+			other.m_indexBuffer = {};
 		}
 
 		return *this;
@@ -64,17 +72,18 @@ namespace Vally
 		glBindVertexArray(m_id);
 	}
 
-	void VertexArray::SetVertexBuffer(const VertexBuffer& vertexBuffer) noexcept
+	void VertexArray::SetVertexBuffer(VertexBuffer& vertexBuffer) noexcept
 	{
+		m_vertexBuffer = std::move(vertexBuffer);
+
 		VALLY_ASSERT(m_id != 0, "Can not set vertex buffer to uninitialized vertex array!");
-		VALLY_ASSERT(vertexBuffer.GetBufferLayout().GetElements().size() != 0, "Vertex buffer has no layout!");
+		VALLY_ASSERT(m_vertexBuffer->GetBufferLayout().GetElements().size() != 0, "Vertex buffer has no layout!");
 
 		glBindVertexArray(m_id);
-		vertexBuffer.Bind();
+		m_vertexBuffer->Bind();
 
 		U32 vertexBufferIndex = 0;
-		const auto& layout = vertexBuffer.GetBufferLayout();
-		for (const auto& element : layout.GetElements())
+		for (const auto& layout = m_vertexBuffer->GetBufferLayout(); const auto& element : layout.GetElements())
 		{
 			switch (element.m_type)
 			{
@@ -86,10 +95,10 @@ namespace Vally
 					glEnableVertexAttribArray(vertexBufferIndex);
 					glVertexAttribPointer(
 						vertexBufferIndex,
-						element.GetCount(),
+						static_cast<GLint>(element.GetCount()),
 						BufferDataTypeToOGL(element.m_type),
 						element.m_normalized ? GL_TRUE : GL_FALSE,
-						layout.GetStride(),
+						static_cast<GLsizei>(layout.GetStride()),
 						reinterpret_cast<const void*>(element.m_offset));
 					vertexBufferIndex++;
 					break;
@@ -103,14 +112,14 @@ namespace Vally
 					glEnableVertexAttribArray(vertexBufferIndex);
 					glVertexAttribIPointer(
 						vertexBufferIndex,
-						element.GetCount(),
+						static_cast<GLint>(element.GetCount()),
 						BufferDataTypeToOGL(element.m_type),
-						layout.GetStride(),
+						static_cast<GLsizei>(layout.GetStride()),
 						reinterpret_cast<const void*>(element.m_offset));
 					vertexBufferIndex++;
 					break;
 				}
-			default:
+			case BufferDataType::None:
 				VALLY_ASSERT(false, "Unknow buffer data type!");
 			}
 		}
@@ -118,11 +127,23 @@ namespace Vally
 		glBindVertexArray(m_id);
 	}
 
-	void VertexArray::SetIndexBuffer(const IndexBuffer& indexBuffer) const noexcept
+	void VertexArray::SetIndexBuffer(IndexBuffer& indexBuffer) noexcept
 	{
+		m_indexBuffer = std::move(indexBuffer);
+
 		VALLY_ASSERT(m_id != 0, "Can not set index buffer to uninitialized vertex array!");
 		glBindVertexArray(m_id);
-		indexBuffer.Bind();
+		m_indexBuffer->Bind();
+	}
+
+	const std::optional<VertexBuffer>& VertexArray::GetVertexBuffer() const noexcept
+	{
+		return m_vertexBuffer;
+	}
+
+	const std::optional<IndexBuffer>& VertexArray::GetIndexBuffer() const noexcept
+	{
+		return m_indexBuffer;
 	}
 
 	void VertexArray::Unbind() noexcept
