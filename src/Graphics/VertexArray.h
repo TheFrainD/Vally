@@ -23,16 +23,22 @@ namespace Vally
 
 		void Bind() const noexcept;
 
-		void SetVertexBuffer(VertexBuffer& vertexBuffer) noexcept;
+		void SetVertexBuffer(VertexBuffer&& vertexBuffer) noexcept;
 
-		void SetIndexBuffer(IndexBuffer& indexBuffer) noexcept;
+		void SetIndexBuffer(IndexBuffer&& indexBuffer) noexcept;
+
+		std::optional<VertexBuffer>& GetVertexBuffer() noexcept;
 
 		[[nodiscard]] const std::optional<VertexBuffer>& GetVertexBuffer() const noexcept;
+
+		std::optional<IndexBuffer>& GetIndexBuffer() noexcept;
 
 		[[nodiscard]] const std::optional<IndexBuffer>& GetIndexBuffer() const noexcept;
 
 		static void Unbind() noexcept;
 	private:
+		void Release() noexcept;
+
 		U32 m_id = 0;
 		std::optional<VertexBuffer> m_vertexBuffer;
 		std::optional<IndexBuffer> m_indexBuffer;

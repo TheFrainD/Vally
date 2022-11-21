@@ -1,7 +1,5 @@
 #pragma once
 
-#include <span>
-
 #include "Base.h"
 
 namespace Vally
@@ -10,7 +8,7 @@ namespace Vally
 	class IndexBuffer
 	{
 	public:
-		explicit IndexBuffer(const std::span<U32>& indices) noexcept;
+		explicit IndexBuffer(const U32* indices, U32 count) noexcept;
 		~IndexBuffer();
 
 		IndexBuffer(IndexBuffer&& other) noexcept;
@@ -21,10 +19,14 @@ namespace Vally
 
 		void Bind() const noexcept;
 
+		void SetData(const U32* indices, U32 count) noexcept;
+
 		[[nodiscard]] U32 GetCount() const noexcept;
 
 		static void Unbind() noexcept;
 	private:
+		void Release() noexcept;
+
 		U32 m_id = 0;
 		U32 m_count = 0;
 	};

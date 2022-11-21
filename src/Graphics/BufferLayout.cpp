@@ -10,8 +10,11 @@ namespace Vally
 	BufferLayout::BufferLayout(const std::initializer_list<BufferElement>& elements) noexcept
 		: m_elements(elements)
 	{
-		for (const auto& element : m_elements)
+		U32 offset = 0;
+		for (auto& element : m_elements)
 		{
+			element.m_offset = offset;
+			offset += element.m_size;
 			m_stride += element.m_size;
 		}
 	}

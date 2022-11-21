@@ -15,41 +15,35 @@ namespace Vally
 		VALLY_ASSERT(m_id != 0, "Failed to create vertex buffer!");
 	}
 
-	VertexBuffer::VertexBuffer(const std::span<F32>& data) noexcept
+	VertexBuffer::VertexBuffer(const void* vertices, U32 size) noexcept
 	{
 		glGenBuffers(1, &m_id);
 		glBindBuffer(GL_ARRAY_BUFFER, m_id);
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(data.size_bytes()), data.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), vertices, GL_STATIC_DRAW);
 
 		VALLY_ASSERT(m_id != 0, "Failed to create vertex buffer!");
 	}
 
 	VertexBuffer::~VertexBuffer()
 	{
-		if (m_id != 0)
-		{
-			glDeleteBuffers(1, &m_id);
-		}
+		Release();
 	}
 
 	VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept
+		: m_id(other.m_id)
+		, m_layout(std::move(other.m_layout))
 	{
-		m_id = other.m_id;
-		m_layout = other.m_layout;
-
 		other.m_id = 0;
-		other.m_layout = BufferLayout();
 	}
 
 	VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) noexcept
 	{
 		if (this != &other)
 		{
-			m_id = other.m_id;
-			m_layout = other.m_layout;
+			Release();
 
-			other.m_id = 0;
-			other.m_layout = BufferLayout();
+			std::swap(m_id, other.m_id);
+			std::swap(m_layout, other.m_layout);
 		}
 
 		return *this;
@@ -71,16 +65,23 @@ namespace Vally
 		m_layout = layout;
 	}
 
-	void VertexBuffer::SetData(const std::span<F32>& data) noexcept
+	void VertexBuffer::SetData(const void* vertices, U32 size) noexcept
 	{
 		VALLY_ASSERT(m_id != 0, "Can not set data to uninitialized buffer!");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_id);
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(data.size_bytes()), data.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), vertices, GL_DYNAMIC_DRAW);
 	}
 
 	void VertexBuffer::Unbind() noexcept
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void VertexBuffer::Release() noexcept
+	{
+		glDeleteBuffers(1, &m_id);
+		m_id = 0;
+		m_layout = {};
 	}
 }

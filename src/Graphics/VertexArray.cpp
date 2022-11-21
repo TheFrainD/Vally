@@ -10,13 +10,13 @@ namespace Vally
 	{
 		switch (type)
 		{
-		case BufferDataType::Float:		
-		case BufferDataType::Float2:	
-		case BufferDataType::Float3:	
+		case BufferDataType::Float:		return GL_FLOAT;
+		case BufferDataType::Float2:	return GL_FLOAT;
+		case BufferDataType::Float3:	return GL_FLOAT;
 		case BufferDataType::Float4:	return GL_FLOAT;
-		case BufferDataType::Int:		
-		case BufferDataType::Int2:		
-		case BufferDataType::Int3:		
+		case BufferDataType::Int:		return GL_INT;
+		case BufferDataType::Int2:		return GL_INT;
+		case BufferDataType::Int3:		return GL_INT;
 		case BufferDataType::Int4:		return GL_INT;
 		case BufferDataType::Bool:		return GL_BOOL;
 		}
@@ -33,34 +33,26 @@ namespace Vally
 
 	VertexArray::~VertexArray()
 	{
-		if (m_id != 0)
-		{
-			glDeleteVertexArrays(1, &m_id);
-		}
+		Release();
 	}
 
 	VertexArray::VertexArray(VertexArray&& other) noexcept
+		: m_id(other.m_id)
+		, m_vertexBuffer(std::move(other.m_vertexBuffer))
+		, m_indexBuffer(std::move(other.m_indexBuffer))
 	{
-		m_id = other.m_id;
-		m_vertexBuffer = std::move(other.m_vertexBuffer);
-		m_indexBuffer = std::move(other.m_indexBuffer);
-
 		other.m_id = 0;
-		other.m_vertexBuffer = {};
-		other.m_indexBuffer = {};
 	}
 
 	VertexArray& VertexArray::operator=(VertexArray&& other) noexcept
 	{
 		if (this != &other)
 		{
-			m_id = other.m_id;
-			m_vertexBuffer = std::move(other.m_vertexBuffer);
-			m_indexBuffer = std::move(other.m_indexBuffer);
+			Release();
 
-			other.m_id = 0;
-			other.m_vertexBuffer = {};
-			other.m_indexBuffer = {};
+			std::swap(m_id, other.m_id);
+			std::swap(m_vertexBuffer, other.m_vertexBuffer);
+			std::swap(m_indexBuffer, other.m_indexBuffer);
 		}
 
 		return *this;
@@ -72,7 +64,7 @@ namespace Vally
 		glBindVertexArray(m_id);
 	}
 
-	void VertexArray::SetVertexBuffer(VertexBuffer& vertexBuffer) noexcept
+	void VertexArray::SetVertexBuffer(VertexBuffer&& vertexBuffer) noexcept
 	{
 		m_vertexBuffer = std::move(vertexBuffer);
 
@@ -127,7 +119,7 @@ namespace Vally
 		glBindVertexArray(m_id);
 	}
 
-	void VertexArray::SetIndexBuffer(IndexBuffer& indexBuffer) noexcept
+	void VertexArray::SetIndexBuffer(IndexBuffer&& indexBuffer) noexcept
 	{
 		m_indexBuffer = std::move(indexBuffer);
 
@@ -136,9 +128,19 @@ namespace Vally
 		m_indexBuffer->Bind();
 	}
 
+	std::optional<VertexBuffer>& VertexArray::GetVertexBuffer() noexcept
+	{
+		return m_vertexBuffer;
+	}
+
 	const std::optional<VertexBuffer>& VertexArray::GetVertexBuffer() const noexcept
 	{
 		return m_vertexBuffer;
+	}
+
+	std::optional<IndexBuffer>& VertexArray::GetIndexBuffer() noexcept
+	{
+		return m_indexBuffer;
 	}
 
 	const std::optional<IndexBuffer>& VertexArray::GetIndexBuffer() const noexcept
@@ -149,5 +151,11 @@ namespace Vally
 	void VertexArray::Unbind() noexcept
 	{
 		glBindVertexArray(0);
+	}
+
+	void VertexArray::Release() noexcept
+	{
+		glDeleteVertexArrays(1, &m_id);
+		m_id = 0;
 	}
 }

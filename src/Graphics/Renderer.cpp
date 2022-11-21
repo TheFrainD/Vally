@@ -23,9 +23,9 @@ namespace Vally
 
 	void Renderer::Draw(const VertexArray& vertexArray) noexcept
 	{
+		VALLY_ASSERT(vertexArray.GetIndexBuffer().has_value(), "Can not draw vertex array without index buffer!");
 		vertexArray.Bind();
-		const U32 count = vertexArray.GetIndexBuffer().has_value() ? vertexArray.GetIndexBuffer()->GetCount() : 0;
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, vertexArray.GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void Renderer::SetViewport(U32 x, U32 y, U32 width, U32 height)

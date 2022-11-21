@@ -1,6 +1,6 @@
 #pragma once
 
-#include <span>
+#include <glm/glm.hpp>
 
 #include "Base.h"
 #include "Graphics/BufferLayout.h"
@@ -11,7 +11,7 @@ namespace Vally
 	{
 	public:
 		explicit VertexBuffer(U32 size) noexcept;
-		explicit VertexBuffer(const std::span<F32>& data) noexcept;
+		explicit VertexBuffer(const void* vertices, U32 size) noexcept;
 
 		~VertexBuffer();
 
@@ -26,10 +26,12 @@ namespace Vally
 		[[nodiscard]] BufferLayout GetBufferLayout() const noexcept;
 		void SetLayout(const BufferLayout& layout) noexcept;
 
-		void SetData(const std::span<F32>& data) noexcept;
+		void SetData(const void* vertices, U32 size) noexcept;
 
 		static void Unbind() noexcept;
 	private:
+		void Release() noexcept;
+
 		U32 m_id = 0;
 		BufferLayout m_layout;
 	};
