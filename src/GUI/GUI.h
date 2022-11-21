@@ -4,6 +4,7 @@
 
 #include "Base.h"
 #include "Graphics/Framebuffer.h"
+#include "Graphics/Camera.h"
 
 struct GLFWwindow;
 
@@ -21,9 +22,14 @@ namespace Vally
 		GUI(GUI&&) = delete;
 		GUI& operator=(GUI&&) = delete;
 
-		void Render() noexcept;
+		void Render(F32 deltaTime) noexcept;
 
 		[[nodiscard]] const Framebuffer& GetFramebuffer() const noexcept;
+
+		[[nodiscard]] const Camera& GetCamera() const noexcept
+		{
+			return m_camera;
+		}
 	private:
 		void Begin() noexcept;
 		void End() noexcept;
@@ -33,6 +39,9 @@ namespace Vally
 
 		Framebuffer m_framebuffer;
 		glm::vec2 m_viewportSize{ 0.0f, 0.0f };
+
+		bool m_viewportActive = false;
+		Camera m_camera;
 	};
 
 }

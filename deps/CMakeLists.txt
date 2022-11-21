@@ -13,6 +13,14 @@ add_subdirectory(spdlog)
 # glm
 add_subdirectory(glm)
 
+# assimp
+set(ZLIB_LIBRARIES zlibstatic)
+set(ENABLE_BOOST_WORKAROUND ON)
+set(BUILD_STATIC_LIB ON)
+set(BUILD_ASSIMP_TOOLS  ON)
+set(ASSIMP_BUILD_STATIC_LIB ON)
+add_subdirectory(assimp)
+
 # ImGui
 set(IMGUI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 

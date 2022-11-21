@@ -17,11 +17,13 @@
 #include "Base.h"
 #include "Core/Log.h"
 #include "Core/Window.h"
+#include "Core/Input.h"
 #include "Event/EventManager.h"
 #include "Event/WindowEvent.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/VertexArray.h"
+#include "Event/InputEvent.h"
 
 namespace Vally
 {
@@ -29,6 +31,7 @@ namespace Vally
 		: m_frameWidth(frameWidth)
 		, m_frameHeight(frameHeight)
 		, m_framebuffer(frameWidth, frameHeight)
+		, m_camera(60.0f, 0.015f)
 	{
 		IMGUI_CHECKVERSION();
 
@@ -74,6 +77,17 @@ namespace Vally
 			this->m_frameHeight = static_cast<F32>(windowResizeEvent.GetHeight());
 		});
 
+		m_camera.SetPosition({ 0.0f, 0.0f, -3.0f });
+
+		EventManager::Subscribe<MouseMovedEvent>([this](Event& event)
+		{
+			if (Input::IsMouseButtonPressed(MouseButton::ButtonRight) && m_viewportActive)
+			{
+				MouseMovedEvent& mouseEvent = dynamic_cast<MouseMovedEvent&>(event);
+				m_camera.Rotate(mouseEvent.GetPosition() - mouseEvent.GetPreviousPosition());
+			}
+		});
+
 		VALLY_INFO("GUI initialized!");
 	}
 
@@ -86,11 +100,12 @@ namespace Vally
 		VALLY_INFO("GUI destroyed!");
 	}
 
-	void GUI::Render() noexcept
+	void GUI::Render(F32 deltaTime) noexcept
 	{
 		if (m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f)
 		{
 			m_framebuffer.Resize(m_viewportSize.x, m_viewportSize.y);
+			m_camera.UpdateProjection(m_viewportSize);
 		}
 
 		Begin();
@@ -175,6 +190,35 @@ namespace Vally
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
+
+		m_viewportActive = ImGui::IsWindowFocused();
+		if (m_viewportActive)
+		{
+			if (Input::IsMouseButtonPressed(MouseButton::ButtonRight))
+			{
+				glm::vec3 direction{ 0.0f };
+				constexpr F32 SPEED = 10.0f;
+
+				if (Input::IsKeyPressed(Key::W))
+				{
+					m_camera.Translate(m_camera.GetFront() * SPEED * deltaTime);
+				}
+				else if (Input::IsKeyPressed(Key::S))
+				{
+					m_camera.Translate(-m_camera.GetFront() * SPEED * deltaTime);
+				}
+
+				if (Input::IsKeyPressed(Key::D))
+				{
+					m_camera.Translate(m_camera.GetRight() * SPEED * deltaTime);
+				}
+				else if (Input::IsKeyPressed(Key::A))
+				{
+					m_camera.Translate(-m_camera.GetRight() * SPEED * deltaTime);
+				}
+			}
+			/*m_camera.Translate(glm::normalize(direction) * SPEED * deltaTime);*/
+		}
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };

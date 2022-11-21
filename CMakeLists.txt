@@ -22,7 +22,7 @@ add_executable(Vally
 
 add_subdirectory(deps)
 
-target_link_libraries(${PROJECT_NAME} imgui glfw glad glm spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} imgui glfw glad glm assimp spdlog::spdlog)
 
 add_custom_command(
 	TARGET ${PROJECT_NAME} POST_BUILD
