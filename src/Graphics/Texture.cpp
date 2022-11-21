@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-#include <utility>
+#include <stdexcept>
 
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -11,7 +11,8 @@
 
 namespace Vally
 {
-	TextureContainer Texture::Create(const std::string& name, const std::string& filePath) noexcept
+	Texture::Texture(const std::string& filePath)
+		: m_path(filePath)
 	{
 		I32 channels;
 		I32 width;
@@ -20,18 +21,15 @@ namespace Vally
 		U8* buffer = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 		if (buffer == nullptr)
 		{
-			VALLY_ERROR("Could not load texture \"{}\"({})!", name, filePath);
-			return {};
+			throw std::runtime_error{ "Could not load image at " + m_path };
 		}
 
-		U32 id = 0;
-		glGenTextures(1, &id);
-		if (id == 0)
+		glGenTextures(1, &m_id);
+		if (m_id == 0)
 		{
-			VALLY_ERROR("Could not generate OpenGL texture \"{}\"({})!", name, filePath);
-			return {};
+			throw std::runtime_error{ "Could not generate OpenGL textures for " + m_path };
 		}
-		glBindTexture(GL_TEXTURE_2D, id);
+		glBindTexture(GL_TEXTURE_2D, m_id);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -42,67 +40,56 @@ namespace Vally
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		stbi_image_free(buffer);
-
-		return Texture(name, id, width, height);
 	}
 
-	TextureContainer Texture::Create(const std::string& name, U32 width, U32 height) noexcept
+	Texture::Texture(U32 width, U32 height)
 	{
-		U32 id = 0;
-		glGenTextures(1, &id);
-		if (id == 0)
+		glGenTextures(1, &m_id);
+		if (m_id == 0)
 		{
-			VALLY_ERROR("Could not generate OpenGL texture \"{}\"!", name);
-			return {};
+			throw std::runtime_error{ "Could not generate OpenGL textures" };
 		}
-		glBindTexture(GL_TEXTURE_2D, id);
+		glBindTexture(GL_TEXTURE_2D, m_id);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		return Texture(name, id, width, height);
 	}
 
 	Texture::~Texture()
 	{
-		if (m_id != 0)
-		{
-			glDeleteTextures(1, &m_id);
-			m_id = 0;
-			VALLY_INFO("{} texture deleted", m_name);
-		}
+		Release();
 	}
 
 	Texture::Texture(Texture&& other) noexcept
+		: m_id(other.m_id)
+		, m_width(other.m_width)
+		, m_height(other.m_height)
+		, m_path(other.m_path)
 	{
-		m_id = other.m_id;
-		m_width = other.m_width;
-		m_height = other.m_height;
-		m_name = other.m_name;
-
 		other.m_id = 0;
 		other.m_width = 0;
 		other.m_height = 0;
-		other.m_name.clear();
 	}
 
 	Texture& Texture::operator=(Texture&& other) noexcept
 	{
 		if (this != &other)
 		{
+			Release();
+
 			m_id = other.m_id;
 			m_width = other.m_width;
 			m_height = other.m_height;
-			m_name = other.m_name;
+			m_path = other.m_path;
 
 			other.m_id = 0;
 			other.m_width = 0;
 			other.m_height = 0;
-			other.m_name.clear();
+			m_path.clear();
 		}
 
 		return *this;
@@ -116,7 +103,7 @@ namespace Vally
 		glBindTexture(GL_TEXTURE_2D, m_id);
 	}
 
-	void Texture::SetData(const std::span<U32>& data)
+	void Texture::SetData(const std::span<U32>& data) noexcept
 	{
 		VALLY_ASSERT(m_id != 0, "Can not set data to uninitialized texture!");
 		VALLY_ASSERT(data.size() == m_width * m_height, "Data must cover all the texture");
@@ -127,9 +114,11 @@ namespace Vally
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	Texture::Texture(std::string name, U32 id, U32 width, U32 height) noexcept
-		: m_id(id), m_width(width), m_height(height), m_name(std::move(name))
+	void Texture::Release() noexcept
 	{
-		VALLY_INFO("{} texture created", m_name);
+		glDeleteTextures(1, &m_id);
+		m_id = 0;
+		m_width = 0;
+		m_height = 0;
 	}
 }

@@ -2,34 +2,34 @@
 
 #include <string>
 #include <unordered_map>
-#include <optional>
-#include <utility>
 #include <span>
 
 #include <glm/glm.hpp>
 
 #include "Base.h"
+#include "Core/Resource.h"
 
 namespace Vally
 {
-
-	class Shader;
-	using ShaderContainer = std::optional<Shader>;
-
-	class Shader
+	class Shader final : public Resource
 	{
 	public:
-		[[nodiscard]] static ShaderContainer Create(
-			const std::string& name,
-			const std::string& filePath) noexcept;
+		VALLY_RESOURCE(Shader)
 
-		~Shader();
+		explicit Shader(const std::string& filePath);
+
+		~Shader() override;
 
 		Shader(Shader&& other) noexcept;
 		Shader& operator=(Shader&& other) noexcept;
 
 		Shader(const Shader&) = delete;
 		Shader& operator=(const Shader&) = delete;
+
+		[[nodiscard]] std::string GetPath() const noexcept
+		{
+			return m_path;
+		}
 
 		void Use() const noexcept;
 
@@ -49,7 +49,7 @@ namespace Vally
 
 		void SetUniformIntegerArray(const std::string& name, const std::span<I32>& pArray);
 	private:
-		explicit Shader(std::string name, U32 id) noexcept;
+		void Release() noexcept;
 
 		[[nodiscard]] static U32 CreateProgram(const std::string& vertexSource, const std::string& fragmentSource) noexcept;
 		[[nodiscard]] static U32 CompileShader(U32 type, const std::string& source) noexcept;
@@ -58,7 +58,7 @@ namespace Vally
 		[[nodiscard]] I32 GetUniformLocation(const std::string& name) noexcept;
 
 		U32 m_id = 0;
-		std::string m_name;
+		std::string m_path;
 		std::unordered_map<std::string, I32> m_uniformLocations;
 	};
 

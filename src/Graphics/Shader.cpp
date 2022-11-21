@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,35 +15,28 @@ namespace Vally
 
 	Shader::~Shader()
 	{
-		if (m_id != 0)
-		{
-			glDeleteProgram(m_id);
-			VALLY_INFO("{} shader destroyed", m_name);
-		}
+		Release();
 	}
 
 	Shader::Shader(Shader&& other) noexcept
+		: m_id(other.m_id)
+		, m_path(std::move(other.m_path))
+		, m_uniformLocations(std::move(other.m_uniformLocations))
 	{
-		m_id = other.m_id;
-		m_name = other.m_name;
-		m_uniformLocations = other.m_uniformLocations;
-
 		other.m_id = 0;
-		other.m_name.clear();
-		other.m_uniformLocations.clear();
 	}
 
 	Shader& Shader::operator=(Shader&& other) noexcept
 	{
 		if (this != &other)
 		{
+			Release();
+
 			m_id = other.m_id;
-			m_name = other.m_name;
-			m_uniformLocations = other.m_uniformLocations;
+			m_path = std::move(other.m_path);
+			m_uniformLocations = std::move(other.m_uniformLocations);
 
 			other.m_id = 0;
-			other.m_name.clear();
-			other.m_uniformLocations.clear();
 		}
 
 		return *this;
@@ -110,27 +104,22 @@ namespace Vally
 		glUniform1iv(GetUniformLocation(name), static_cast<GLsizei>(pArray.size()), pArray.data());
 	}
 
-	Shader::Shader(std::string name, U32 id) noexcept
-		: m_id(id)
-		, m_name(std::move(name))
+	void Shader::Release() noexcept
 	{
-		VALLY_INFO("{} shader created", m_name);
+		glDeleteProgram(m_id);
+		m_id = 0;
 	}
 
-	ShaderContainer Shader::Create(
-		const std::string& name,
-		const std::string& filePath) noexcept
+	Shader::Shader(const std::string& filePath)
+		: m_path(filePath)
 	{
 		const auto [vertexSource, fragmentSource] = Parse(filePath);
 
-		const U32 programID = CreateProgram(vertexSource, fragmentSource);
-
-		if (programID != 0)
+		m_id = CreateProgram(vertexSource, fragmentSource);
+		if (m_id == 0)
 		{
-			return Shader(name, programID);
+			throw std::runtime_error{ "Could not create shader program (" + m_path + ")" };
 		}
-
-		return {};
 	}
 
 	U32 Shader::CreateProgram(const std::string& vertexSource, const std::string& fragmentSource) noexcept

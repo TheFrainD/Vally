@@ -1,29 +1,23 @@
 #pragma once
 
 #include <string>
-#include <optional>
 #include <span>
 
 #include "Base.h"
+#include "Core/Resource.h"
 
 namespace Vally
 {
-
-	class Texture;
-	using TextureContainer = std::optional<Texture>;
-
-	class Texture
+	class Texture final : public Resource
 	{
 	public:
-		[[nodiscard]] static TextureContainer Create(
-			const std::string& name,
-			const std::string& filePath) noexcept;
+		VALLY_RESOURCE(Texture)
 
-		[[nodiscard]] static TextureContainer Create(
-			const std::string& name,
-			U32 width, U32 height) noexcept;
+		explicit Texture(const std::string& filePath);
 
-		~Texture();
+		Texture(U32 width, U32 height);
+
+		~Texture() override;
 
 		Texture(Texture&& other) noexcept;
 		Texture& operator=(Texture&& other) noexcept;
@@ -33,15 +27,15 @@ namespace Vally
 
 		void Bind(U32 slot = 0) const noexcept;
 
-		void SetData(const std::span<U32>& data);
+		void SetData(const std::span<U32>& data) noexcept;
 	private:
-		Texture(std::string name, U32 id, U32 width, U32 height) noexcept;
+		void Release() noexcept;
 
 		U32 m_id = 0;
 		U32 m_width = 0;
 		U32 m_height = 0;
 
-		std::string m_name;
+		std::string m_path;
 	};
 
 }
