@@ -57,7 +57,7 @@ namespace Vally
 		m_position = position;
 	}
 
-	void Model::Draw(const Camera& camera) const noexcept
+	void Model::Draw() const noexcept
 	{
 		for (auto&& mesh : m_meshes)
 		{
@@ -65,8 +65,6 @@ namespace Vally
 			model = glm::scale(model, m_scale);
 			model = glm::translate(model, m_position);
 			mesh.m_material->m_shader->SetUniformMatrix4("uModel", model);
-			mesh.m_material->m_shader->SetUniformMatrix4("uView", camera.GetView());
-			mesh.m_material->m_shader->SetUniformMatrix4("uProjection", camera.GetProjection());
 			mesh.Draw();
 		}
 	}

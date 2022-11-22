@@ -8,11 +8,13 @@
 #include "Core/Input.h"
 #include "Core/ResourceManager.h"
 #include "Event/EventManager.h"
+#include "glm/gtc/type_ptr.hpp"
 #include "Graphics/Renderer.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Model.h"
+#include "Graphics/UniformBuffer.h"
 
 constexpr auto WINDOW_WIDTH = 800;
 constexpr auto WINDOW_HEIGHT = 600;
@@ -64,6 +66,9 @@ namespace Vally
 		ResourceManager::Load<Model>("Backpack", "assets/models/container/Container.obj", true);
 		ResourceManager::Get<Model>("Backpack")->Scale(glm::vec3(0.02f));
 
+		UniformBuffer projView(sizeof(glm::mat4) * 2, 0);
+		projView.Bind(0, "Matrices", ResourceManager::Get<Shader>("Standard shader"));
+
 		F32 lastTime = 0.0f;
 		while (m_running)
 		{
@@ -81,9 +86,10 @@ namespace Vally
 			quad.m_material->m_shader->SetUniformMatrix4("uView", m_gui.GetCamera().GetView());
 			quad.m_material->m_shader->SetUniformMatrix4("uModel", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 
-			//quad.Draw();
+			projView.SetData(glm::value_ptr(m_gui.GetCamera().GetProjection()), sizeof(glm::mat4));
+			projView.SetData(glm::value_ptr(m_gui.GetCamera().GetView()), sizeof(glm::mat4), sizeof(glm::mat4));
 
-			ResourceManager::Get<Model>("Backpack")->Draw(m_gui.GetCamera());
+			ResourceManager::Get<Model>("Backpack")->Draw();
 
 			Framebuffer::Unbind();
 

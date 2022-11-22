@@ -33,7 +33,7 @@ namespace Vally
 		void Translate(const glm::vec3& translation) noexcept;
 		void SetPosition(const glm::vec3& position) noexcept;
 
-		void Draw(const Camera& camera) const noexcept;
+		void Draw() const noexcept;
 
 		void AttachMesh(Mesh&& mesh) noexcept;
 

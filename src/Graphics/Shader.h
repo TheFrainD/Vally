@@ -48,6 +48,8 @@ namespace Vally
 		void SetUniformInteger(const std::string& name, I32 value) noexcept;
 
 		void SetUniformIntegerArray(const std::string& name, const std::span<I32>& pArray);
+
+		void SetUniformBlock(U32 uniformBinding , const std::string& uniformBlockName) noexcept;
 	private:
 		void Release() noexcept;
 
@@ -56,10 +58,12 @@ namespace Vally
 		[[nodiscard]] static std::pair<std::string, std::string> Parse(const std::string& filePath) noexcept;
 
 		[[nodiscard]] I32 GetUniformLocation(const std::string& name) noexcept;
+		[[nodiscard]] I32 GetUniformBlockLocation(const std::string& name) noexcept;
 
 		U32 m_id = 0;
 		std::string m_path;
-		std::unordered_map<std::string, I32> m_uniformLocations;
+		std::unordered_map<U32, I32> m_uniformLocations;
+		std::unordered_map<U32, I32> m_uniformBlockLocations;
 	};
 
 }

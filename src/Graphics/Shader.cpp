@@ -13,6 +13,20 @@
 namespace Vally
 {
 
+	static U32 HashValue(const std::string_view& str)
+	{
+		const char* c = str.data();
+		U32 value = 0x00000000;
+
+		while (*c)
+		{
+			value = (value << 5) - value + (*c == '/' ? '\\' : *c);
+			c++;
+		}
+
+		return value ? value : 0xffffffff;
+	}
+
 	Shader::~Shader()
 	{
 		Release();
@@ -22,6 +36,7 @@ namespace Vally
 		: m_id(other.m_id)
 		, m_path(std::move(other.m_path))
 		, m_uniformLocations(std::move(other.m_uniformLocations))
+		, m_uniformBlockLocations(std::move(other.m_uniformBlockLocations))
 	{
 		other.m_id = 0;
 	}
@@ -35,6 +50,7 @@ namespace Vally
 			m_id = other.m_id;
 			m_path = std::move(other.m_path);
 			m_uniformLocations = std::move(other.m_uniformLocations);
+			m_uniformBlockLocations = std::move(other.m_uniformBlockLocations);
 
 			other.m_id = 0;
 		}
@@ -102,6 +118,13 @@ namespace Vally
 		VALLY_ASSERT(m_id != 0, "Can not set uniform to uninitialized shader!");
 		Use();
 		glUniform1iv(GetUniformLocation(name), static_cast<GLsizei>(pArray.size()), pArray.data());
+	}
+
+	void Shader::SetUniformBlock(U32 uniformBinding, const std::string& uniformBlockName) noexcept
+	{
+		VALLY_ASSERT(m_id != 0, "Can not set uniform block to uninitialized shader!");
+		const U32 uniformBlockID = GetUniformBlockLocation(uniformBlockName);
+		glUniformBlockBinding(m_id, uniformBlockID, uniformBinding);
 	}
 
 	void Shader::Release() noexcept
@@ -234,11 +257,25 @@ namespace Vally
 
 	I32 Shader::GetUniformLocation(const std::string& name) noexcept
 	{
-		if (!m_uniformLocations.contains(name))
+		const U32 hashedName = HashValue(name);
+
+		if (!m_uniformLocations.contains(hashedName))
 		{
-			m_uniformLocations[name] = glGetUniformLocation(m_id, name.c_str());
+			m_uniformLocations[hashedName] = glGetUniformLocation(m_id, name.c_str());
 		}
 
-		return m_uniformLocations.at(name);
+		return m_uniformLocations.at(hashedName);
+	}
+
+	I32 Shader::GetUniformBlockLocation(const std::string& name) noexcept
+	{
+		const U32 hashedName = HashValue(name);
+
+		if (!m_uniformBlockLocations.contains(hashedName))
+		{
+			m_uniformBlockLocations[hashedName] = glGetUniformBlockIndex(m_id, name.c_str());
+		}
+
+		return m_uniformBlockLocations.at(hashedName);
 	}
 }
