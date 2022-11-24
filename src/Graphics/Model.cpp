@@ -18,12 +18,8 @@ namespace Vally
 
 	Model::Model(Model&& other) noexcept
 		: m_path(std::move(other.m_path))
-		, m_position(other.m_position)
-		, m_scale(other.m_scale)
 		, m_meshes(std::move(other.m_meshes))
 	{
-		other.m_position = {};
-		other.m_scale = {};
 	}
 
 	Model& Model::operator=(Model&& other) noexcept
@@ -31,39 +27,16 @@ namespace Vally
 		if (this != &other)
 		{
 			m_path = std::move(other.m_path);
-			m_position = other.m_position;
-			m_scale = other.m_scale;
 			m_meshes = std::move(other.m_meshes);
-
-			other.m_position = {};
-			other.m_scale = {};
 		}
 		
 		return *this;
 	}
 
-	void Model::Scale(const glm::vec3& scale) noexcept
-	{
-		m_scale = scale;
-	}
-
-	void Model::Translate(const glm::vec3& translation) noexcept
-	{
-		SetPosition(m_position + translation);
-	}
-
-	void Model::SetPosition(const glm::vec3& position) noexcept
-	{
-		m_position = position;
-	}
-
-	void Model::Draw() const noexcept
+	void Model::Draw(const glm::mat4& model) const noexcept
 	{
 		for (auto&& mesh : m_meshes)
 		{
-			glm::mat4 model{ 1.0f };
-			model = glm::scale(model, m_scale);
-			model = glm::translate(model, m_position);
 			mesh.m_material->m_shader->SetUniformMatrix4("uModel", model);
 			mesh.Draw();
 		}

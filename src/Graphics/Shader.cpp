@@ -9,6 +9,7 @@
 
 #include "Core/Log.h"
 #include "Core/Assert.h"
+#include "Graphics/Renderer.h"
 
 namespace Vally
 {
@@ -143,6 +144,8 @@ namespace Vally
 		{
 			throw std::runtime_error{ "Could not create shader program (" + m_path + ")" };
 		}
+
+		Renderer::s_data.m_cameraBuffer->Bind(0, "CameraMatrices", this);
 	}
 
 	U32 Shader::CreateProgram(const std::string& vertexSource, const std::string& fragmentSource) noexcept

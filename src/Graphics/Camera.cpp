@@ -1,6 +1,9 @@
 #include "Camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Graphics/Renderer.h"
 
 namespace Vally
 {
@@ -15,6 +18,10 @@ namespace Vally
 	{
 		const F32 aspectRatio = viewportSize.x / viewportSize.y;
 		m_projection = glm::perspective(m_fov, aspectRatio, m_near, m_far);
+		if (Renderer::s_data.m_cameraBuffer)
+		{
+			Renderer::s_data.m_cameraBuffer->SetData(glm::value_ptr(m_projection), sizeof(glm::mat4));
+		}
 	}
 
 	void Camera::UpdateView() noexcept
@@ -33,6 +40,10 @@ namespace Vally
 		m_up = glm::normalize(glm::cross(m_right, m_front));
 
 		m_view = glm::lookAt(m_position, m_position + m_front, m_up);
+		if (Renderer::s_data.m_cameraBuffer)
+		{
+			Renderer::s_data.m_cameraBuffer->SetData(glm::value_ptr(m_view), sizeof(glm::mat4), sizeof(glm::mat4));
+		}
 	}
 
 	void Camera::Rotate(glm::vec2 mouseDeltaPosition)

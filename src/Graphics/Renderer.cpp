@@ -4,11 +4,37 @@
 
 namespace Vally
 {
+	RendererSettings Renderer::s_settings;
+	RendererData Renderer::s_data;
+	
+	void Renderer::InitData()
+	{
+		s_data.m_cameraBuffer = new UniformBuffer(sizeof(glm::mat4) * 2, 0);
+	}
+
+	void Renderer::DestroyData()
+	{
+		delete s_data.m_cameraBuffer;
+	}
+	
 	void Renderer::Prepare() noexcept
 	{
 		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glFrontFace(GL_CCW);
+		glCullFace(GL_BACK);
+
+		if (s_settings.m_faceCulling)
+		{
+			glEnable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
+		}
 	}
 
 	void Renderer::Clear() noexcept

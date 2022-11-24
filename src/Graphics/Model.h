@@ -21,7 +21,9 @@ namespace Vally
 	public:
 		VALLY_RESOURCE(Model)
 
-		Model(std::string path, const bool flipWindingOrder = false) noexcept;
+		~Model() override = default;
+
+		explicit Model(std::string path, const bool flipWindingOrder = false) noexcept;
 
 		Model(Model&& other) noexcept;
 		Model& operator=(Model&& other) noexcept;
@@ -29,23 +31,9 @@ namespace Vally
 		Model(const Model&) = delete;
 		Model& operator=(const Model&) = delete;
 
-		void Scale(const glm::vec3& scale) noexcept;
-		void Translate(const glm::vec3& translation) noexcept;
-		void SetPosition(const glm::vec3& position) noexcept;
-
-		void Draw() const noexcept;
+		void Draw(const glm::mat4& model) const noexcept;
 
 		void AttachMesh(Mesh&& mesh) noexcept;
-
-		[[nodiscard]] glm::vec3 GetPosition() const noexcept
-		{
-			return m_position;
-		}
-
-		[[nodiscard]] glm::vec3 GetScale() const noexcept
-		{
-			return m_scale;
-		}
 
 		[[nodiscard]] std::string GetPath() const noexcept
 		{
@@ -57,10 +45,6 @@ namespace Vally
 		void ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 
 		std::string m_path;
-
-		glm::vec3 m_position{ 0.0f };
-		glm::vec3 m_scale{ 1.0f };
-
 		std::vector<Mesh> m_meshes;
 	};
 }

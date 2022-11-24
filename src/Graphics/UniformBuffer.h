@@ -24,6 +24,8 @@ namespace Vally
 		void SetData(const void* data, U32 size, U32 offset = 0) noexcept;
 
 		void Bind(U32 slot, const std::string& name, const std::shared_ptr<Shader>& shader) const noexcept;
+
+		void Bind(U32 slot, const std::string& name, Shader* shader) const noexcept;
 	private:
 		void Release() noexcept;
 

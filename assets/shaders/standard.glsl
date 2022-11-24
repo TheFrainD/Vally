@@ -6,7 +6,7 @@ layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in vec3 aTangent;
 
-layout (std140) uniform Matrices
+layout (std140) uniform CameraMatrices
 {
     mat4 projection;
     mat4 view;

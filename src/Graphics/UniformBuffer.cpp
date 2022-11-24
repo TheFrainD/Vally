@@ -55,6 +55,12 @@ namespace Vally
 		shader->SetUniformBlock(slot, name);
 	}
 
+	void UniformBuffer::Bind(U32 slot, const std::string& name, Shader* shader) const noexcept
+	{
+		glBindBufferBase(GL_UNIFORM_BUFFER, slot, m_id);
+		shader->SetUniformBlock(slot, name);
+	}
+
 	void UniformBuffer::Release() noexcept
 	{
 		glDeleteBuffers(1, &m_id);
