@@ -23,20 +23,22 @@ namespace Vally
 		{
 			static_assert(std::is_base_of_v<Resource, T> == true, "Object must derive from Resource");
 
-			if (Exists(name))
+			const std::string fullName = name + '_' + T::StaticType();
+
+			if (Exists(fullName))
 			{
 				return false;
 			}
 
 			try
 			{
-				s_resources.insert({ name, std::shared_ptr<Resource>(new T(std::forward<Args>(args)...)) });
+				s_resources.insert({ fullName, std::shared_ptr<Resource>(new T(std::forward<Args>(args)...)) });
 				VALLY_INFO("Loaded {} \"{}\"", T::StaticType(), name);
 				return true;
 			}
 			catch (const std::exception& e)
 			{
-				VALLY_ERROR("Could not add resource \"{}\"", name);
+				VALLY_ERROR("Could not add resource \"{}\"\nError: {}", name, e.what());
 			}
 
 			return false;
@@ -47,12 +49,16 @@ namespace Vally
 		{
 			static_assert(std::is_base_of_v<Resource, T> == true, "Object must derive from Resource");
 
-			if (Exists(name))
+			const std::string fullName = name + '_' + T::StaticType();
+
+			if (Exists(fullName))
 			{
 				return false;
 			}
 
-			s_resources.insert({ name, std::dynamic_pointer_cast<Resource>(resource) });
+			s_resources.insert({ fullName, std::dynamic_pointer_cast<Resource>(resource) });
+			VALLY_INFO("Loaded {} \"{}\"", T::StaticType(), name);
+
 			return true;
 		}
 
@@ -62,9 +68,12 @@ namespace Vally
 		static std::shared_ptr<T> Get(const std::string& name) noexcept
 		{
 			static_assert(std::is_base_of_v<Resource, T> == true, "Object must derive from Resource");
-			if (s_resources.contains(name))
+
+			const std::string fullName = name + '_' + T::StaticType();
+
+			if (s_resources.contains(fullName))
 			{
-				return std::dynamic_pointer_cast<T>(s_resources.at(name));
+				return std::dynamic_pointer_cast<T>(s_resources.at(fullName));
 			}
 
 			return nullptr;
