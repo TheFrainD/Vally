@@ -45,6 +45,7 @@ namespace Vally
 		void ProcessMesh(aiMesh* pMesh, const aiScene* pScene);
 
 		std::string m_path;
+		std::string m_directory;
 		std::vector<Mesh> m_meshes;
 	};
 }

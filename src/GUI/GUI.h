@@ -5,6 +5,7 @@
 #include "Base.h"
 #include "Graphics/Framebuffer.h"
 #include "Graphics/Camera.h"
+#include "Scene/Node.h"
 
 struct GLFWwindow;
 
@@ -24,6 +25,10 @@ namespace Vally
 
 		void Render(F32 deltaTime) noexcept;
 
+		void ShowSceneNode(Node* node) noexcept;
+
+		void ShowNodeProperties() noexcept;
+
 		[[nodiscard]] const Framebuffer& GetFramebuffer() const noexcept;
 
 		[[nodiscard]] const Camera& GetCamera() const noexcept
@@ -42,6 +47,9 @@ namespace Vally
 
 		bool m_viewportActive = false;
 		Camera m_camera;
+
+		Node* m_selectedNode = nullptr;
+		std::string m_modelPath;
 	};
 
 }

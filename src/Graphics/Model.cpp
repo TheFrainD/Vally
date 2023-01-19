@@ -18,6 +18,7 @@ namespace Vally
 
 	Model::Model(Model&& other) noexcept
 		: m_path(std::move(other.m_path))
+		, m_directory(std::move(other.m_directory))
 		, m_meshes(std::move(other.m_meshes))
 	{
 	}
@@ -27,6 +28,7 @@ namespace Vally
 		if (this != &other)
 		{
 			m_path = std::move(other.m_path);
+			m_directory = std::move(other.m_directory);
 			m_meshes = std::move(other.m_meshes);
 		}
 		
@@ -75,7 +77,7 @@ namespace Vally
 			return;
 		}
 
-		m_path = path.substr(0, path.find_last_of('/')) + "/";
+		m_directory = path.substr(0, path.find_last_of('/')) + "/";
 
 		ProcessNode(pScene->mRootNode, pScene);
 

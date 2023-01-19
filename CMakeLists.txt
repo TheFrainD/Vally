@@ -14,7 +14,9 @@ file(GLOB SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Event/*.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GUI/*.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/Graphics/*.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Graphics/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Scene/*.cpp
+)
 
 add_executable(Vally
 	${SRC}

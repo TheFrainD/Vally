@@ -4,9 +4,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
-
+#include <misc/cpp/imgui_stdlib.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -20,10 +20,14 @@
 #include "Core/Input.h"
 #include "Event/EventManager.h"
 #include "Event/WindowEvent.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/VertexArray.h"
 #include "Event/InputEvent.h"
+#include "Scene/SceneManager.h"
+#include "GUI/VImGui.h"
+#include "Core/ResourceManager.h"
 
 namespace Vally
 {
@@ -170,6 +174,11 @@ namespace Vally
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Scene"))
+			{
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMenuBar();
 		}
 
@@ -179,6 +188,7 @@ namespace Vally
 		ImGui::End();
 
 		ImGui::Begin("Settings");
+
 		static bool vsync = true;
 		static bool vsyncPrev = true;
 		ImGui::Checkbox("Vertical sync", &vsync);
@@ -187,6 +197,8 @@ namespace Vally
 			Window::SetSwapInterval(vsync);
 			vsyncPrev = vsync;
 		}
+
+		ImGui::Checkbox("Face culling", &Renderer::s_settings.m_faceCulling);
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
@@ -228,21 +240,125 @@ namespace Vally
 		ImGui::End();
 
 		ImGui::Begin("Scene");
-		ImGui::PushID(0);
-		bool opened = ImGui::TreeNodeEx("Node 1", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
-		ImGui::PopID();
-		if (opened)
+		if (SceneManager::GetCurrentScene())
 		{
-			ImGui::TreePop();
+			auto& nodes = SceneManager::GetCurrentScene()->GetRoot()->m_children;
+			for (auto& node : nodes)
+			{
+				ShowSceneNode(&node);
+			}
 		}
+		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+			m_selectedNode = nullptr;
 		ImGui::End();
 
-		ImGui::Begin("Parameters");
+		ImGui::Begin("Properties");
+		ShowNodeProperties();
 		ImGui::End();
 
 		ImGui::End();
 
 		End();
+	}
+
+	void GUI::ShowSceneNode(Node* node) noexcept
+	{
+		bool opened = ImGui::TreeNodeEx(node->m_name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth);
+
+		if (ImGui::IsItemClicked())
+		{
+			m_selectedNode = node;
+
+			if (m_selectedNode->m_model)
+			{
+				m_modelPath = m_selectedNode->m_model->GetPath();
+			}
+			else
+			{
+				m_modelPath = "";
+			}
+		}
+
+		bool nodeDeleted = false;
+		bool nodeCreated = false;
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Add child"))
+			{
+				nodeCreated = true;
+			}
+			
+			if (ImGui::MenuItem("Delete"))
+			{
+				nodeDeleted = true;
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (opened)
+		{	
+			auto& children = node->m_children;
+			for (auto& child : children)
+			{
+				ShowSceneNode(&child);
+			}
+			ImGui::TreePop();
+		}
+
+		if (nodeDeleted)
+		{
+			if (m_selectedNode == node)
+			{
+				m_selectedNode = nullptr;
+			}
+			SceneManager::GetCurrentScene()->QueueFreeNode(node);
+		}
+
+		if (nodeCreated)
+		{
+			SceneManager::GetCurrentScene()->AddNode(node->m_name, "New node");
+		}
+	}
+
+	void GUI::ShowNodeProperties() noexcept
+	{
+		if (m_selectedNode)
+		{
+			ImGui::InputText(VImGui::LabelPrefix("Name").c_str(), &m_selectedNode->m_name);
+
+			if (ImGui::CollapsingHeader("Transform"))
+			{
+				VImGui::InputVec3("Position", m_selectedNode->m_transform.m_position);
+				VImGui::InputVec3("Scale", m_selectedNode->m_transform.m_scale);
+				VImGui::InputVec3("Rotation", m_selectedNode->m_transform.m_rotation);
+			}
+
+			if (ImGui::CollapsingHeader("Model"))
+			{
+				ImGui::InputText(VImGui::LabelPrefix("Path").c_str(), &m_modelPath);
+				if (ImGui::Button("Reset"))
+				{
+					if (m_selectedNode->m_model)
+					{
+						m_modelPath = m_selectedNode->m_model->GetPath();
+					}
+					else
+					{
+						m_modelPath = "";
+					}
+				}
+				ImGui::SameLine();
+
+				if (ImGui::Button("Load"))
+				{
+					if (ResourceManager::Load<Model>(m_modelPath, m_modelPath))
+					{
+						m_selectedNode->m_model = ResourceManager::Get<Model>(m_modelPath);
+					}
+				}
+			}
+		}
 	}
 
 	const Framebuffer& GUI::GetFramebuffer() const noexcept

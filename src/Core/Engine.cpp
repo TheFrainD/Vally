@@ -15,9 +15,10 @@
 #include "Graphics/Mesh.h"
 #include "Graphics/Model.h"
 #include "Graphics/UniformBuffer.h"
+#include "Scene/SceneManager.h"
 
-constexpr auto WINDOW_WIDTH = 800;
-constexpr auto WINDOW_HEIGHT = 600;
+constexpr auto WINDOW_WIDTH = 1280;
+constexpr auto WINDOW_HEIGHT = 720;
 constexpr auto WINDOW_TITLE = "Vally";
 
 namespace Vally
@@ -27,6 +28,7 @@ namespace Vally
 		, m_gui(m_window.GetHandle(), WINDOW_WIDTH, WINDOW_HEIGHT)
 		, m_running(false)
 	{
+		Renderer::InitData();
 	}
 
 	void Engine::Run()
@@ -37,37 +39,19 @@ namespace Vally
 		EventManager::Subscribe<KeyPressedEvent>(VALLY_EVENT_TCALLBACK(OnKeyPressed, KeyPressedEvent));
 
 		ResourceManager::Load<Shader>("Standard shader", "assets/shaders/standard.glsl");
-		ResourceManager::Load<Texture>("Bricks texture", "assets/textures/Bricks/Bricks_Albedo.png");
+		ResourceManager::Load<Model>("Container", "assets/models/container/Container.obj", true);
 
-		const std::vector<Vertex> vertices = {
-			{glm::vec3(0.5f,  0.5f, 0.0f),  glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(-0.5f, -0.5f, 0.0f),  glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(-0.5f,  0.5f, 0.0f),  glm::vec2(0.0f, 1.0f)},
-		};
+		Scene* mainScene = SceneManager::CreateScene("MainScene");
 
-		const std::vector<U32> indices = {
-			0, 1, 3,
-			1, 2, 3
-		};
+		Node* container = mainScene->AddNode("root", "Container");
+		container->m_model = ResourceManager::Get<Model>("Container");
+		container->m_transform.m_scale = glm::vec3(0.025f);
+		container->m_transform.m_rotation.x = 90.0f;
+		container->m_transform.m_position.z = 2.0f;
 
-		auto bricksMaterial = std::make_shared<Material>();
-		bricksMaterial->m_textures.m_albedo = ResourceManager::Get<Texture>("Bricks texture");
-		bricksMaterial->m_shader = ResourceManager::Get<Shader>("Standard shader");
-
-		ResourceManager::Load<Material>("Brick material", bricksMaterial);
-
-		Mesh quad("Quad");
-		quad.m_material = ResourceManager::Get<Material>("Brick material");
-		quad.m_vertices = vertices;
-		quad.m_indices = indices;
-		quad.UpdateMesh();
-
-		ResourceManager::Load<Model>("Backpack", "assets/models/container/Container.obj", true);
-		ResourceManager::Get<Model>("Backpack")->Scale(glm::vec3(0.02f));
-
-		UniformBuffer projView(sizeof(glm::mat4) * 2, 0);
-		projView.Bind(0, "Matrices", ResourceManager::Get<Shader>("Standard shader"));
+		Node* container1 = mainScene->AddNode("Container", "Container1");
+		container1->m_model = ResourceManager::Get<Model>("Container");
+		container1->m_transform.m_position.x = 8.0f;
 
 		F32 lastTime = 0.0f;
 		while (m_running)
@@ -82,23 +66,19 @@ namespace Vally
 			Renderer::SetClearColor({ 0.1f, 0.2f, 0.4f, 1.0f });
 			Renderer::Clear();
 
-			quad.m_material->m_shader->SetUniformMatrix4("uProjection", m_gui.GetCamera().GetProjection());
-			quad.m_material->m_shader->SetUniformMatrix4("uView", m_gui.GetCamera().GetView());
-			quad.m_material->m_shader->SetUniformMatrix4("uModel", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-
-			projView.SetData(glm::value_ptr(m_gui.GetCamera().GetProjection()), sizeof(glm::mat4));
-			projView.SetData(glm::value_ptr(m_gui.GetCamera().GetView()), sizeof(glm::mat4), sizeof(glm::mat4));
-
-			ResourceManager::Get<Model>("Backpack")->Draw();
+			SceneManager::Render();
 
 			Framebuffer::Unbind();
 
 			m_gui.Render(deltaTime);
 
 			m_window.Update();
+
+			SceneManager::Update(deltaTime);
 		}
 
 		ResourceManager::UnloadAll();
+		Renderer::DestroyData();
 	}
 
 	void Engine::OnWindowClose(WindowCloseEvent& event)

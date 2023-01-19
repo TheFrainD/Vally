@@ -30,6 +30,7 @@ list(APPEND IMGUI_PRIVATE_HEADERS
 		"${IMGUI_SRC_DIR}/stb_rect_pack.h"
 		"${IMGUI_SRC_DIR}/stb_textedit.h"
 		"${IMGUI_SRC_DIR}/stb_truetype.h"
+		"${IMGUI_SRC_DIR}/misc/cpp/imgui_stdlib.h"
 		)
 
 list(APPEND IMGUI_SOURCES
@@ -38,6 +39,7 @@ list(APPEND IMGUI_SOURCES
 		"${IMGUI_SRC_DIR}/imgui_demo.cpp"
 		"${IMGUI_SRC_DIR}/imgui_widgets.cpp"
 		"${IMGUI_SRC_DIR}/imgui_tables.cpp"
+		"${IMGUI_SRC_DIR}/misc/cpp/imgui_stdlib.cpp"
 		)
 
 list(APPEND IMGUI_PUBLIC_INCLUDE_DIRS
