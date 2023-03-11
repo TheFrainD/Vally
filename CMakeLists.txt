@@ -1,27 +1,31 @@
 ﻿cmake_minimum_required (VERSION 3.12)
 project ("Vally")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(DEPS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+find_package(OpenGL REQUIRED)
+
 file(GLOB SRC 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp
-	)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Core/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Event/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GUI/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Graphics/*.cpp)
 
 add_executable(Vally
 	${SRC}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
 
-find_package(OpenGL REQUIRED)
+add_subdirectory(deps)
 
-# GLFW
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(${DEPS_DIR}/glfw EXCLUDE_FROM_ALL)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} imgui glfw glad glm assimp spdlog::spdlog)
 
-# glad
-add_subdirectory(${DEPS_DIR}/glad)
-target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+add_custom_command(
+	TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+			${CMAKE_CURRENT_SOURCE_DIR}/assets
+			${CMAKE_CURRENT_BINARY_DIR}/assets)

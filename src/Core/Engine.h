@@ -1,6 +1,9 @@
 #pragma once
 
-#include "Window.h"
+#include "Core/Window.h"
+#include "GUI/GUI.h"
+#include "Event/WindowEvent.h"
+#include "Event/InputEvent.h"
 
 namespace Vally
 {
@@ -10,9 +13,14 @@ namespace Vally
 		Engine();
 
 		void Run();
-	private:
-		Window mWindow{800, 600, "Vally"};
 
-		bool mRunning;
+		void OnWindowClose(WindowCloseEvent& event);
+
+		void OnKeyPressed(KeyPressedEvent& event);
+	private:
+		Window m_window;
+		GUI m_gui;
+
+		bool m_running;
 	};
 }

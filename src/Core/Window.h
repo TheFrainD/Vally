@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Base.h"
+
 struct GLFWwindow;
 
 namespace Vally
@@ -9,7 +11,7 @@ namespace Vally
 	class Window
 	{
 	public:
-		Window(int width, int height, const std::string& title);
+		Window(U32 width, U32 height, const std::string& title);
 		~Window();
 
 		Window(const Window&) = delete;
@@ -17,24 +19,22 @@ namespace Vally
 		Window(Window&&) = delete;
 		Window& operator=(Window&&) = delete;
 
-		void SwapBuffers() const;
+		void Update() const noexcept;
 
-		[[nodiscard]] bool ShouldClose() const;
+		[[nodiscard]] GLFWwindow* GetHandle() const noexcept;
 
-		static void PollEvents();
+		static void SetSwapInterval(bool toggle) noexcept;
 	private:
 		void Initialize();
 
 		struct WindowData
 		{
-			int Width{};
-			int Height{};
-			std::string Title;
-
-			WindowData() = default;
+			U32 m_width{};
+			U32 m_height{};
+			std::string m_title;
 		};
 
-		GLFWwindow* mWindow;
-		WindowData mData;
+		GLFWwindow* m_pWindow = nullptr;
+		WindowData m_data;
 	};
 }

@@ -45,3 +45,6 @@ _deps
 *.exe
 *.out
 *.app
+
+# Log files
+.log
